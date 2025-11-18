@@ -1,0 +1,12 @@
+[package]
+name = "apex-ts"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+regex = "1.10"
+walkdir = "2.4"
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
