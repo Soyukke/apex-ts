@@ -52,11 +52,11 @@ impl ApexParser {
             // フィールド定義を検出（複数行アノテーションとワンライン形式の両方に対応）
             // キャプチャ: 1=直前の行のアノテーション, 2=同じ行のアノテーション(optional), 3=型, 4=フィールド名
             field_with_line_regex: Regex::new(
-                r"(?m)((?:^\s*(?:/\*\*[\s\S]*?\*/|@\w+(?:\([^)]*\))?)\s*\n)*)\s*(@\w+(?:\([^)]*\))?\s+)?public\s+(\w+(?:<[\w\s,]+>)?)\s+(\w+)\s*;"
+                r"(?m)((?:^\s*(?:/\*\*[\s\S]*?\*/|@\w+(?:\([^)]*\))?)\s*\n)*)\s*(@\w+(?:\([^)]*\))?\s+)?public\s+(\w+(?:<[\w\s,]+>)?)\s+(\w+)\s*;",
             )?,
             // メソッド定義を検出（複数行アノテーションとワンライン形式の両方に対応）
             method_regex: Regex::new(
-                r"(?m)((?:^\s*(?:/\*\*[\s\S]*?\*/|@\w+(?:\([^)]*\))?)\s*\n)*)\s*(@\w+(?:\([^)]*\))?\s+)?public\s+(static\s+)?(\w+(?:<[\w\s,]+>)?)\s+(\w+)\s*\(([^)]*)\)"
+                r"(?m)((?:^\s*(?:/\*\*[\s\S]*?\*/|@\w+(?:\([^)]*\))?)\s*\n)*)\s*(@\w+(?:\([^)]*\))?\s+)?public\s+(static\s+)?(\w+(?:<[\w\s,]+>)?)\s+(\w+)\s*\(([^)]*)\)",
             )?,
         })
     }
@@ -84,11 +84,11 @@ impl ApexParser {
             let same_line_annotation = cap.get(2).map(|m| m.as_str()).unwrap_or("");
             let field_type = cap.get(3).unwrap().as_str().to_string();
             let field_name = cap.get(4).unwrap().as_str().to_string();
-            
+
             // 直前の行または同じ行に @AuraEnabled があるかチェック
-            let has_aura_enabled = self.aura_enabled_regex.is_match(prev_line_annotations) 
+            let has_aura_enabled = self.aura_enabled_regex.is_match(prev_line_annotations)
                 || self.aura_enabled_regex.is_match(same_line_annotation);
-            
+
             if has_aura_enabled {
                 debug!("  Field: {} ({})", field_name, field_type);
                 fields.push(ApexField {
@@ -115,18 +115,16 @@ impl ApexParser {
             let params_str = cap.get(6).unwrap().as_str();
 
             // 直前の行または同じ行に @AuraEnabled があるかチェック
-            let has_aura_enabled = self.aura_enabled_regex.is_match(prev_line_annotations) 
+            let has_aura_enabled = self.aura_enabled_regex.is_match(prev_line_annotations)
                 || self.aura_enabled_regex.is_match(same_line_annotation);
 
             if has_aura_enabled {
                 let parameters = self.parse_parameters(params_str);
                 debug!(
                     "  Method: {} ({}) -> {}",
-                    method_name,
-                    params_str,
-                    return_type
+                    method_name, params_str, return_type
                 );
-                
+
                 methods.push(ApexMethod {
                     name: method_name,
                     return_type,

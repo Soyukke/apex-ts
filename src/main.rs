@@ -1,5 +1,5 @@
-mod parser;
 mod generator;
+mod parser;
 
 use anyhow::{Context, Result};
 use clap::Parser;
@@ -58,7 +58,10 @@ fn main() -> Result<()> {
     }
 
     if apex_files.is_empty() {
-        println!("No Apex class files (.cls) found in {}", cli.input.display());
+        println!(
+            "No Apex class files (.cls) found in {}",
+            cli.input.display()
+        );
         return Ok(());
     }
 
