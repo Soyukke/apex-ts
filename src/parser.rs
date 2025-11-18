@@ -22,6 +22,7 @@ pub struct ApexMethod {
     pub name: String,
     pub return_type: String,
     pub parameters: Vec<ApexParameter>,
+    #[allow(dead_code)]
     pub is_static: bool,
 }
 
@@ -155,7 +156,7 @@ impl ApexParser {
         params_str
             .split(',')
             .filter_map(|param| {
-                let parts: Vec<&str> = param.trim().split_whitespace().collect();
+                let parts: Vec<&str> = param.split_whitespace().collect();
                 if parts.len() >= 2 {
                     Some(ApexParameter {
                         param_type: parts[0].to_string(),

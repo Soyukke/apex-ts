@@ -49,7 +49,7 @@ fn main() -> Result<()> {
     let apex_files: Vec<String> = WalkDir::new(&cli.input)
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|e| e.path().extension().map_or(false, |ext| ext == "cls"))
+        .filter(|e| e.path().extension().is_some_and(|ext| ext == "cls"))
         .map(|e| e.path().to_string_lossy().to_string())
         .collect();
 

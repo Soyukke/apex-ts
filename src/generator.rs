@@ -46,7 +46,7 @@ impl TypeScriptGenerator {
         output.push_str(&format!("export interface {} {{\n", class.name));
 
         for field in &class.fields {
-            let ts_type = self.convert_apex_type_to_ts(&field.field_type);
+            let ts_type = Self::convert_apex_type_to_ts(&field.field_type);
             let optional_marker = if field.is_optional { "?" } else { "" };
             output.push_str(&format!(
                 "  {}{}: {};\n",
@@ -64,7 +64,7 @@ impl TypeScriptGenerator {
         // 各メソッドを @salesforce/apex からインポートする形式で定義
         for method in &class.methods {
             output.push_str(&self.generate_apex_import_declaration(class, method));
-            output.push_str("\n");
+            output.push('\n');
         }
 
         output
@@ -81,13 +81,13 @@ impl TypeScriptGenerator {
         
         output.push_str("  export default function ");
         output.push_str(&method.name);
-        output.push_str("(");
+        output.push('(');
         
         // パラメータ
         if !method.parameters.is_empty() {
             output.push_str("params: {\n");
             for param in &method.parameters {
-                let ts_type = self.convert_apex_type_to_ts(&param.param_type);
+                let ts_type = Self::convert_apex_type_to_ts(&param.param_type);
                 output.push_str(&format!("    {}: {};\n", param.name, ts_type));
             }
             output.push_str("  }");
@@ -99,16 +99,16 @@ impl TypeScriptGenerator {
         if method.return_type == "void" {
             output.push_str("void");
         } else {
-            output.push_str(&self.convert_apex_type_to_ts(&method.return_type));
+            output.push_str(&Self::convert_apex_type_to_ts(&method.return_type));
         }
         
         output.push_str(">;\n");
-        output.push_str("}");
+        output.push('}');
         
         output
     }
 
-    fn convert_apex_type_to_ts(&self, apex_type: &str) -> String {
+    fn convert_apex_type_to_ts(apex_type: &str) -> String {
         match apex_type {
             "String" => "string".to_string(),
             "Integer" | "Long" | "Double" | "Decimal" => "number".to_string(),
@@ -123,7 +123,7 @@ impl TypeScriptGenerator {
                         .trim_start_matches("List<")
                         .trim_start_matches("Set<")
                         .trim_end_matches('>');
-                    format!("{}[]", self.convert_apex_type_to_ts(inner))
+                    format!("{}[]", Self::convert_apex_type_to_ts(inner))
                 } else if apex_type.starts_with("Map<") {
                     // Map<K, V> を Record<K, V> に変換
                     let inner = apex_type.trim_start_matches("Map<").trim_end_matches('>');
@@ -131,8 +131,8 @@ impl TypeScriptGenerator {
                     if parts.len() == 2 {
                         format!(
                             "Record<{}, {}>",
-                            self.convert_apex_type_to_ts(parts[0]),
-                            self.convert_apex_type_to_ts(parts[1])
+                            Self::convert_apex_type_to_ts(parts[0]),
+                            Self::convert_apex_type_to_ts(parts[1])
                         )
                     } else {
                         "Record<string, any>".to_string()
@@ -159,24 +159,21 @@ mod tests {
 
     #[test]
     fn test_convert_primitive_types() {
-        let generator = TypeScriptGenerator::new();
-        assert_eq!(generator.convert_apex_type_to_ts("String"), "string");
-        assert_eq!(generator.convert_apex_type_to_ts("Integer"), "number");
-        assert_eq!(generator.convert_apex_type_to_ts("Boolean"), "boolean");
+        assert_eq!(TypeScriptGenerator::convert_apex_type_to_ts("String"), "string");
+        assert_eq!(TypeScriptGenerator::convert_apex_type_to_ts("Integer"), "number");
+        assert_eq!(TypeScriptGenerator::convert_apex_type_to_ts("Boolean"), "boolean");
     }
 
     #[test]
     fn test_convert_list_type() {
-        let generator = TypeScriptGenerator::new();
-        assert_eq!(generator.convert_apex_type_to_ts("List<String>"), "string[]");
-        assert_eq!(generator.convert_apex_type_to_ts("List<Integer>"), "number[]");
+        assert_eq!(TypeScriptGenerator::convert_apex_type_to_ts("List<String>"), "string[]");
+        assert_eq!(TypeScriptGenerator::convert_apex_type_to_ts("List<Integer>"), "number[]");
     }
 
     #[test]
     fn test_convert_map_type() {
-        let generator = TypeScriptGenerator::new();
         assert_eq!(
-            generator.convert_apex_type_to_ts("Map<String, Integer>"),
+            TypeScriptGenerator::convert_apex_type_to_ts("Map<String, Integer>"),
             "Record<string, number>"
         );
     }
